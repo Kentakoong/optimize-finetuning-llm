@@ -1,14 +1,14 @@
-import transformers
-import torch
-from torch.utils.data import Dataset
-
-from typing import Dict
 import logging
+from typing import Dict
 
-from .data_collator import DataCollatorForSupervisedDataset
-from .constant import PROMPT_DICT
-from .tokenize import preprocess
+from torch import Tensor
+from torch.utils.data import Dataset
+from transformers import PreTrainedTokenizer
+
 from . import utils
+from .constant import PROMPT_DICT
+from .data_collator import DataCollatorForSupervisedDataset
+from .tokenize import preprocess
 
 
 class SupervisedDataset(Dataset):
@@ -17,7 +17,7 @@ class SupervisedDataset(Dataset):
     def __init__(
         self,
         data_path: str,
-        tokenizer: transformers.PreTrainedTokenizer,
+        tokenizer: PreTrainedTokenizer,
     ):
         super(SupervisedDataset, self).__init__()
         logging.warning("Loading data...")
@@ -50,7 +50,7 @@ class SupervisedDataset(Dataset):
     def __len__(self):
         return len(self.input_ids)
 
-    def __getitem__(self, i) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, i) -> Dict[str, Tensor]:
         return dict(
             input_ids=self.input_ids[i],
             labels=self.labels[i],
@@ -58,16 +58,16 @@ class SupervisedDataset(Dataset):
 
 
 def make_supervised_data_module(
-    tokenizer: transformers.PreTrainedTokenizer, data_args
+    tokenizer: PreTrainedTokenizer, data_args
 ) -> Dict:
     """Make dataset and collator for supervised fine-tuning."""
     train_dataset = SupervisedDataset(
-        tokenizer=tokenizer, data_path=data_args.train_data_path
+        tokenizer=tokenizer, data_path=data_args.train_file
     )
     eval_dataset = None
-    if data_args.eval_data_path:
+    if data_args.validation_file:
         eval_dataset = SupervisedDataset(
-            tokenizer=tokenizer, data_path=data_args.eval_data_path
+            tokenizer=tokenizer, data_path=data_args.validation_file
         )
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
     return dict(

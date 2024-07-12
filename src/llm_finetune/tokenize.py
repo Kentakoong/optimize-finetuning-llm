@@ -1,6 +1,6 @@
 import transformers
-
 import copy
+
 from typing import Sequence, Dict
 
 from .constant import IGNORE_INDEX

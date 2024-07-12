@@ -1,5 +1,7 @@
 import transformers
-import torch
+from torch import Tensor
+
+from torch.nn.utils.rnn import pad_sequence
 
 from typing import Sequence, Dict
 from dataclasses import dataclass
@@ -13,17 +15,17 @@ class DataCollatorForSupervisedDataset(object):
 
     tokenizer: transformers.PreTrainedTokenizer
 
-    def __call__(self, instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
+    def __call__(self, instances: Sequence[Dict]) -> Dict[str, Tensor]:
         input_ids, labels = tuple(
             [instance[key] for instance in instances]
             for key in ("input_ids", "labels")  # noqa: E501
         )
-        input_ids = torch.nn.utils.rnn.pad_sequence(
+        input_ids = pad_sequence(
             input_ids,
             batch_first=True,
             padding_value=self.tokenizer.pad_token_id,
         )
-        labels = torch.nn.utils.rnn.pad_sequence(
+        labels = pad_sequence(
             labels,
             batch_first=True,
             padding_value=IGNORE_INDEX,

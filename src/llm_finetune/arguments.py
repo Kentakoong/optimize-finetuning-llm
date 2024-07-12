@@ -1,27 +1,33 @@
-import transformers
-
 from dataclasses import dataclass, field
 from typing import Optional, Union
+
+from transformers import TrainingArguments as tArgs
 
 
 @dataclass
 class ModelArguments:
-    model_name_or_path: Optional[str] = field(default="facebook/opt-125m")
+    """Model arguments for fine-tuning."""
+    model_name_or_path: str = field(
+        default=None,
+        metadata={"help": "The model checkpoint for weights initialization."}
+    )
 
 
 @dataclass
 class DataArguments:
-    train_data_path: str = field(
+    """Data arguments for fine-tuning."""
+    train_file: str = field(
         default=None, metadata={"help": "Path to the training data."}
     )
-    eval_data_path: str = field(
+    validation_file: str = field(
         default=None, metadata={"help": "Path to the eval data."}
     )
 
 
 @dataclass
-class TrainingArguments(transformers.TrainingArguments):
-    cache_dir: Optional[str] = field(default=None)
+class TrainingArguments(tArgs):
+    """Training arguments for fine-tuning."""
+    seed: int = field(default=42)
     optim: str = field(default="adamw_torch")
     checkpoint: Optional[str] = field(default=None)
     model_max_length: int = field(
