@@ -29,8 +29,7 @@ class TrainingArguments(tArgs):
     """Training arguments for fine-tuning."""
     seed: int = field(default=42)
     optim: str = field(default="adamw_torch")
-    checkpoint: Optional[str] = field(default=None)
-    model_max_length: int = field(
+    max_seq_length: int = field(
         default=512,
         metadata={
             "help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."  # noqa: E501

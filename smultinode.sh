@@ -43,15 +43,15 @@ accelerate launch \
     --main_process_port $MASTER_PORT \
     --dynamo_backend inductor \
     scripts/train.py \
-    --model_name_or_path /scratch/lt999001-intern/models/Qwen1.5-14B-Chat \
+    --model_name_or_path /project/lt999001-intern/shared/models/Llama-2-13b-chat-hf \
     --train_file /project/lt999001-intern/shared/datasets/alpaca_json/alpaca_train.json \
     --validation_file /project/lt999001-intern/shared/datasets/alpaca_json/alpaca_train.json \
     --seed 42 \
-    --model_max_length 1100 \
-    --output_dir ./checkpoint/ \
+    --max_seq_length 1300 \
+    --output_dir /project/lt999001-intern/wongkraiwich/working/wk1/finetune/checkpoint/ \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 2 \
-    --per_device_eval_batch_size 2 \
+    --per_device_train_batch_size 8 \
+    --per_device_eval_batch_size 8 \
     --save_steps 700 \
     --save_total_limit 5 \
     --learning_rate 8e-5 \
@@ -62,3 +62,6 @@ accelerate launch \
     --deepspeed ./deepspeed_config/deepspeed_3.json \
     --gradient_checkpointing True \
     --tf32 True
+
+#qwen: 1100
+#llama: 1300
