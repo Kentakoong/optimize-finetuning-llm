@@ -1,5 +1,5 @@
-import time
 import inspect
+import time
 from dataclasses import asdict
 
 from llm_finetune.arguments import (DataArguments, ModelArguments,
@@ -33,7 +33,8 @@ def train():
 
     model = AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,
-        quantization_config=quantization_config
+        quantization_config=quantization_config,
+        attn_implementation="flash_attention_2"
     )
 
     print("------ Memory Footprint of the model ------")
