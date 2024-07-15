@@ -47,21 +47,22 @@ accelerate launch \
     --train_file /project/lt999001-intern/shared/datasets/alpaca_json/alpaca_train.json \
     --validation_file /project/lt999001-intern/shared/datasets/alpaca_json/alpaca_validation.json \
     --seed 42 \
-    --max_seq_length 1300 \
+    --max_seq_length 2048 \
     --output_dir /project/lt999001-intern/wongkraiwich/working/wk1/finetune/checkpoint/ \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 4 \
-    --per_device_eval_batch_size 4 \
+    --per_device_train_batch_size 16 \
+    --per_device_eval_batch_size 16 \
     --save_steps 700 \
     --save_total_limit 5 \
-    --learning_rate 8e-5 \
+    --learning_rate 5e-5 \
     --weight_decay 0.0 \
     --warmup_ratio 0.03 \
     --lr_scheduler_type linear \
-    --gradient_accumulation_steps 1 \
+    --gradient_accumulation_steps 2 \
     --deepspeed ./deepspeed_config/deepspeed_optim.json \
     --gradient_checkpointing True \
-    --tf32 True
+    --tf32 True \
+    --bf16 True
 
 #qwen: 1100
 #llama: 1300

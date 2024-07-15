@@ -34,10 +34,8 @@ def train():
 
     model = AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,
-        quantization_config=quantization_config,
         torch_dtype=bfloat16,
-        attn_implementation="flash_attention_2",
-        config={"use_cache": False},
+        use_cache=False,
     )
 
     print("------ Memory Footprint of the model ------")
@@ -52,15 +50,10 @@ def train():
     tokenizer.pad_token = tokenizer.eos_token
 
     peft_config = LoraConfig(
-        # The learning rate multiplier for LoRA parameters. This amplifies the updates applied to the adapted parameters.
-        lora_alpha=16,
-        # Dropout rate applied to the LoRA projections. Helps in preventing overfitting by randomly dropping units from the projections during training.
-        lora_dropout=0.1,
-        # Rank of the low-rank matrices in LoRA. A higher rank allows for more complex adaptations but increases the number of parameters to be trained.
+        lora_alpha=32,
+        lora_dropout=0.05,
         r=64,
-        # Specifies how biases are handled in LoRA adaptations. "none" means that biases are not adapted as part of the LoRA process.
         bias="none",
-        # Indicates the type of task the model is being fine-tuned for. Here, it specifies a causal language modeling task.
         task_type="CAUSAL_LM",
     )
 
