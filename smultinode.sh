@@ -31,7 +31,7 @@ echo -------------------------
 
 export NCCL_TIMEOUT=3600000
 export TORCH_NCCL_BLOCKING_WAIT=0
-export TORCH_EXTENSIONS_DIR=" .cache"
+export TORCH_EXTENSIONS_DIR=".cache"
 
 accelerate launch \
     --num_processes $((4 * $COUNT_NODE)) \
@@ -59,7 +59,7 @@ accelerate launch \
     --warmup_ratio 0.03 \
     --lr_scheduler_type linear \
     --gradient_accumulation_steps 1 \
-    --deepspeed ./deepspeed_config/deepspeed_2.json \
+    --deepspeed ./deepspeed_config/deepspeed_optim.json \
     --gradient_checkpointing True \
     --tf32 True
 

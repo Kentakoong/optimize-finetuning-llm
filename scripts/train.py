@@ -27,6 +27,7 @@ def train():
         bnb_4bit_quant_type="nf4",
         # Specify the data type for computation. Here it uses 16-bit floating points as defined above.
         bnb_4bit_compute_dtype=bfloat16,
+        bnb_4bit_quant_storage=bfloat16,
         # Determines whether to use double quantization. Setting this to False uses single quantization, which is simpler and faster.
         bnb_4bit_use_double_quant=False,
     )
@@ -34,7 +35,9 @@ def train():
     model = AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,
         quantization_config=quantization_config,
-        attn_implementation="flash_attention_2"
+        torch_dtype=bfloat16,
+        attn_implementation="flash_attention_2",
+        config={"use_cache": False},
     )
 
     print("------ Memory Footprint of the model ------")
