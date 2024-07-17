@@ -36,6 +36,8 @@ def train():
         model_args.model_name_or_path,
         torch_dtype=bfloat16,
         use_cache=False,
+        quantization_config=quantization_config,
+        attn_implementation="flash_attention_2"
     )
 
     print("------ Memory Footprint of the model ------")
@@ -50,9 +52,9 @@ def train():
     tokenizer.pad_token = tokenizer.eos_token
 
     peft_config = LoraConfig(
-        lora_alpha=32,
+        lora_alpha=64,
         lora_dropout=0.05,
-        r=64,
+        r=128,
         bias="none",
         task_type="CAUSAL_LM",
     )
@@ -83,14 +85,12 @@ def train():
         packing=False,
     )
 
-    start_time = time.time()
-
     trainer.train()
 
-    print(f"--- execute time : {time.time() - start_time} seconds ---")
-
-    trainer.save_state()
-    trainer.save_model(output_dir=training_args.output_dir)
+    model_to_save = trainer.model.module if hasattr(
+        # Take care of distributed/parallel training
+        trainer.model, 'module') else trainer.model
+    model_to_save.save_pretrained(training_args.output_dir)
 
 
 if __name__ == "__main__":
