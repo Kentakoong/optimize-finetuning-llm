@@ -7,8 +7,12 @@
 module restore
 module load Mamba
 module load Apptainer
+module load PrgEnv-gnu
+module load cpe-cuda/23.03
 module load cudatoolkit/23.3_11.8
-module load gcc/10.3.0
+
+# module load cudatoolkit/23.3_11.8
+# module load gcc/10.3.0
 
 conda deactivate
 # conda activate deeptransformers
@@ -30,27 +34,37 @@ echo THEID=$THEID
 echo SLURM_PROCID=$SLURM_PROCID
 echo -------------------------
 
+echo PWD=$(pwd)
+echo LS=$(ls)
+
 export NCCL_TIMEOUT=3600000
 export TORCH_NCCL_BLOCKING_WAIT=0
 export TORCH_EXTENSIONS_DIR=".cache"
+export HF_HUB_CACHE=".cache"
+export HF_HOME=".cache"
+export HF_DATASETS_CACHE=".cache"
+export TORCH_HOME=".cache"
+export XDG_CACHE_HOME=".cache"
+export TRITON_CACHE_DIR=".cache"
 export BNB_CUDA_VERSION=118
 export CUDA_HOME="/usr/local/cuda"
-# DS_SKIP_CUDA_CHECK=1
 
 echo ------DEEPSPEED--------
 cat "deepspeed_config/deepspeed_optim.json"
 echo -----------------------
 
-PROJ_PATH=/project/lt999001-intern/wongkraiwich/working/wk1/finetune
-SHARED_PATH=/project/lt999001-intern/shared
+PROJ_PATH=/project/lt999001-intern/wongkraiwich/working/llm/finetune
+SHARED_PATH=/scratch/lt999001-intern/shared
 
 apptainer exec --nv \
+    -B $PROJ_PATH:/workspace \
     -B $PROJ_PATH/scripts:/scripts \
     -B $PROJ_PATH/deepspeed_config:/deepspeed_config \
     -B $PROJ_PATH/checkpoint:/checkpoint \
     -B $SHARED_PATH/models:/models \
     -B $SHARED_PATH/datasets:/datasets \
-    ../apptainer/llm.sif \
+    -B /scratch/lt999001-intern/.cache:/.cache \
+    ../apptainer/llm \
     accelerate launch \
     --num_processes $((4 * $COUNT_NODE)) \
     --num_machines $COUNT_NODE \
@@ -61,12 +75,12 @@ apptainer exec --nv \
     --main_process_port $MASTER_PORT \
     --dynamo_backend inductor \
     /scripts/train.py \
-    --model_name_or_path /models/Llama-2-13b-chat-hf \
+    --pretrained_model_name_or_path /models/Llama-2-13b-chat-hf \
     --train_file /datasets/alpaca_json/alpaca_train.json \
     --validation_file /datasets/alpaca_json/alpaca_validation.json \
     --seed 42 \
     --max_seq_length 1300 \
-    --output_dir /checkpoint/ \
+    --output_dir /checkpoint \
     --num_train_epochs 1 \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 4 \

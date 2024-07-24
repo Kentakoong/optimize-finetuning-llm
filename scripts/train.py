@@ -1,16 +1,24 @@
 import inspect
-import time
-from dataclasses import asdict
 
-from llm_finetune.arguments import (DataArguments, ModelArguments,
-                                    TrainingArguments)
+import pandas as pd
+from llm_finetune.arguments import (DataArguments, LoggingArguments,
+                                    ModelArguments, TrainingArguments)
 from llm_finetune.dataset import make_supervised_data_module
 from llm_finetune.trainer import EpochTimingCallback
+from nvitop import ResourceMetricCollector
 from peft import LoraConfig
 from torch import bfloat16
 from transformers import (AutoModelForCausalLM, AutoTokenizer,
                           BitsAndBytesConfig, HfArgumentParser, set_seed)
 from trl import SFTConfig, SFTTrainer
+
+
+def extract_dict(obj):
+    """Extracts a dictionary from an object."""
+    if hasattr(obj, '__dict__'):
+        return extract_dict(obj.__dict__)
+    else:
+        return obj
 
 
 def train():
@@ -23,33 +31,34 @@ def train():
 
     quantization_config = BitsAndBytesConfig(
         load_in_4bit=True,
-        # Set the quantization type to "nf4", which stands for "near-float 4-bit". This is a quantization scheme designed to maintain high accuracy with lower bit rates.
         bnb_4bit_quant_type="nf4",
-        # Specify the data type for computation. Here it uses 16-bit floating points as defined above.
         bnb_4bit_compute_dtype=bfloat16,
         bnb_4bit_quant_storage=bfloat16,
-        # Determines whether to use double quantization. Setting this to False uses single quantization, which is simpler and faster.
         bnb_4bit_use_double_quant=False,
     )
-
+    
     model = AutoModelForCausalLM.from_pretrained(
-        model_args.model_name_or_path,
+        model_args.pretrained_model_name_or_path,
         torch_dtype=bfloat16,
         use_cache=False,
         quantization_config=quantization_config,
-        attn_implementation="flash_attention_2"
+        attn_implementation="flash_attention_2",
+        local_files_only=True
     )
 
-    print("------ Memory Footprint of the model ------")
-    print(model.get_memory_footprint())
-
     tokenizer = AutoTokenizer.from_pretrained(
-        model_args.model_name_or_path,
+        model_args.pretrained_model_name_or_path,
         max_seq_length=training_args.max_seq_length,
         padding_side="right",
         use_fast=False,
     )
+
     tokenizer.pad_token = tokenizer.eos_token
+
+    tokenizer_config = extract_dict(tokenizer)
+
+    # print("-------------------TokenizerConfig-------------------")
+    # print(tokenizer_config)
 
     peft_config = LoraConfig(
         lora_alpha=64,
@@ -79,11 +88,16 @@ def train():
         model=model,
         tokenizer=tokenizer,
         args=config,
-        ** data_module,
+        **data_module,
         callbacks=[EpochTimingCallback()],
         peft_config=peft_config,
         packing=False,
     )
+
+    trainer_config = extract_dict(trainer)
+
+    print("-------------------TrainerConfig-------------------")
+    print(trainer_config)
 
     trainer.train()
 
