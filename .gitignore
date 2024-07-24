@@ -163,4 +163,4 @@ cython_debug/
 
 checkpoint/
 .cache/
-logs/
+logs*

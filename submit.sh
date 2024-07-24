@@ -1,6 +1,6 @@
 echo "Moving old logs"
 
-mv ./logs/* ../logs
+mv ./logs/* ./logsed
 
 echo "Done moving old logs"
 

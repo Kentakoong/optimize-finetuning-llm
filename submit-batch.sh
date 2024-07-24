@@ -5,7 +5,7 @@
 #SBATCH --gpus-per-node=4		         # Specify total number of GPUs
 #SBATCH -t 1:00:00                       # Specify maximum time limit (hour: minute: second)
 #SBATCH -A lt999001                      # Specify project name
-#SBATCH -J finetune_test                 # Specify job name
+#SBATCH -J optimize                      # Specify job name
 #SBATCH -o ./logs/finetune-%j.out        # Specify output file
 
 START=$(date)
