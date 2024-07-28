@@ -101,13 +101,28 @@ class PerformanceLogger:
 
     def on_collect(self, metrics):
         """Collects metrics."""
-        
+
         metrics['tag'] = self.tag
 
         df_metrics = pd.DataFrame.from_records([metrics])
 
         self.df = pd.concat([self.df, df_metrics], ignore_index=True)
         return True
+
+
+class Logger:
+    """Arguments logger class."""
+
+    def __init__(self, log_dir):
+
+        os.makedirs(log_dir, exist_ok=True)
+
+        self.log_dir = log_dir
+
+    def log(self, obj, filename="log"):
+        """Logs the object."""
+        with open(f"{self.log_dir}/{filename}.json", "w", encoding='utf-8') as f:
+            json.dump(serialize(obj), f, ensure_ascii=False, indent=4)
 
 
 def train():
@@ -135,8 +150,6 @@ def train():
         bnb_4bit_use_double_quant=False,
     )
 
-    print("Loading model...")
-
     model = AutoModelForCausalLM.from_pretrained(
         model_args.pretrained_model_name_or_path,
         torch_dtype=bfloat16,
@@ -148,8 +161,6 @@ def train():
 
     collector.change_tag("load_token")
 
-    print("Loading token...")
-
     tokenizer = AutoTokenizer.from_pretrained(
         model_args.pretrained_model_name_or_path,
         max_seq_length=training_args.max_seq_length,
@@ -160,8 +171,6 @@ def train():
     tokenizer.pad_token = tokenizer.eos_token
 
     collector.change_tag("load_data")
-
-    print("Loading data...")
 
     data_module = make_supervised_data_module(
         tokenizer=tokenizer,
@@ -210,10 +219,9 @@ def train():
         "trainer_config": trainer.args.__dict__,
     }))
 
-    os.makedirs(logging_args.log_dir, exist_ok=True)
+    logger = Logger(log_dir=logging_args.log_dir)
 
-    with open(f'{logging_args.log_dir}/arguments.json', 'w', encoding='utf-8') as f:
-        json.dump(serialize(all_dict), f, ensure_ascii=False, indent=4)
+    logger.log(all_dict, filename="arguments")
 
     collector.change_tag("train")
 
@@ -225,6 +233,8 @@ def train():
         # Take care of distributed/parallel training
         trainer.model, 'module') else trainer.model
     model_to_save.save_pretrained(training_args.output_dir)
+
+    logger.log(trainer.state.log_history, filename="state")
 
     collector.stop()
 
