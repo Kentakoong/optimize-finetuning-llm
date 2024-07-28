@@ -4,6 +4,20 @@
 
 # HOSTNAMES MASTER_ADDR MASTER_PORT COUNT_NODE are coming from the main script
 
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+    --log_dir)
+        LOG_DIR="$2"
+        shift
+        ;;
+    *)
+        echo "Unknown parameter passed: $1"
+        exit 1
+        ;;
+    esac
+    shift
+done
+
 module restore
 module load Mamba
 module load Apptainer
@@ -29,8 +43,6 @@ echo MASTER_ADDR= $MASTER_ADDR
 echo MASTER_PORT= $MASTER_PORT
 
 H=$(hostname)
-THEID=$(echo -e $HOSTNAMES | python -c "import sys;[sys.stdout.write(str(i)) for i,line in enumerate(next(sys.stdin).split(' ')) if line.strip() == '$H'.strip()]")
-echo THEID=$THEID
 echo SLURM_PROCID=$SLURM_PROCID
 echo -------------------------
 
@@ -61,6 +73,7 @@ apptainer exec --nv \
     -B $PROJ_PATH/scripts:/scripts \
     -B $PROJ_PATH/deepspeed_config:/deepspeed_config \
     -B $PROJ_PATH/checkpoint:/checkpoint \
+    -B $LOG_DIR:/logs \
     -B $SHARED_PATH/models:/models \
     -B $SHARED_PATH/datasets:/datasets \
     -B /scratch/lt999001-intern/.cache:/.cache \
@@ -99,7 +112,9 @@ apptainer exec --nv \
     --max_grad_norm 1.0 \
     --logging_steps 10 \
     --dataloader_num_workers 16 \
-    --ddp_find_unused_parameters False
+    --ddp_find_unused_parameters False \
+    --log_dir /logs \
+    --node_number $SLURM_PROCID
 
 #qwen: 1100
 #llama: 1300

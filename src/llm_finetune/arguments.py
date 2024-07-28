@@ -50,11 +50,7 @@ class LoggingArguments:
         default="logs",
         metadata={"help": "Directory to save logs."}
     )
-    log_interval: int = field(
-        default=100,
-        metadata={"help": "Interval to log metrics."}
-    )
-    log_file: str = field(
-        default="train.csv",
-        metadata={"help": "Log file name."}
+    node_number: int = field(
+        default=0,
+        metadata={"help": "Node number."}
     )

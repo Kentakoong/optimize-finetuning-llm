@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p gpu --exclusive               # Specify partition [Compute/Memory/GPU]
-#SBATCH -N 16 -c 64                      # Specify number of nodes and processors per task
+#SBATCH -N 8 -c 64                       # Specify number of nodes and processors per task
 #SBATCH --ntasks-per-node=1		         # Specify number of tasks per node
 #SBATCH --gpus-per-node=4		         # Specify total number of GPUs
 #SBATCH -t 1:00:00                       # Specify maximum time limit (hour: minute: second)
@@ -25,12 +25,13 @@ echo $HOSTNAMES
 LOG_DIR=./logs/finetune-${SLURM_JOB_ID}
 
 mkdir -p $LOG_DIR
+mkdir -p $LOG_DIR/node_log
 
 export NCCL_DEBUG=INFO
 export NCCL_SOCKET_IFNAME=hsn
-export NCCL_SOCKET_NTHREADS=10
-export NCCL_NSOCKS_PERTHREAD=6
+export NCCL_SOCKET_NTHREADS=4
+export NCCL_NSOCKS_PERTHREAD=4
 export NCCL_DEBUG_FILE=${LOG_DIR}/nccl-${SLURM_JOB_ID}.log
 export NCCL_TOPO_DUMP_FILE=${LOG_DIR}/nccl-topo-${SLURM_JOB_ID}.log
 
-srun --output=${LOG_DIR}/node-%t.out sh smultinode.sh
+srun --output=${LOG_DIR}/node_log/node-%t.out sh smultinode.sh --log_dir $LOG_DIR
