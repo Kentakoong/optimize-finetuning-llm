@@ -22,10 +22,11 @@ export COUNT_NODE=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l)
 echo go $COUNT_NODE
 echo $HOSTNAMES
 
-LOG_DIR=./logs/finetune-${SLURM_JOB_ID}
+export LOG_DIR="./logs/finetune-${SLURM_JOB_ID}"
 
 mkdir -p $LOG_DIR
 mkdir -p $LOG_DIR/node_log
+
 
 export NCCL_DEBUG=INFO
 export NCCL_SOCKET_IFNAME=hsn

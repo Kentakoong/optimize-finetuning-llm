@@ -13,7 +13,7 @@ module load cudatoolkit/23.3_11.8
 # module load gcc/10.3.0
 
 conda deactivate
-# conda activate deeptransformers
+conda activate ./env
 
 echo -------ENVIRONMENT-------
 echo myuser=$(whoami)
@@ -43,26 +43,16 @@ export TORCH_HOME=".cache"
 export XDG_CACHE_HOME=".cache"
 export TRITON_CACHE_DIR=".cache"
 export BNB_CUDA_VERSION=118
-export CUDA_HOME="/usr/local/cuda"
+# export CUDA_HOME="/usr/local/cuda"
 
 echo ------DEEPSPEED--------
-cat "deepspeed_config/deepspeed_optim.json"
+cat "deepspeed_config/deepspeed_3.json"
 echo -----------------------
 
-PROJ_PATH=/project/lt999001-intern/wongkraiwich/working/llm/finetune
-SHARED_PATH=/scratch/lt999001-intern/shared
+# PROJ_PATH=/project/lt999001-intern/wongkraiwich/working/llm/finetune
+# SHARED_PATH=/scratch/lt999001-intern/shared
 
-apptainer exec --nv \
-    -B $PROJ_PATH:/workspace \
-    -B $PROJ_PATH/scripts:/scripts \
-    -B $PROJ_PATH/deepspeed_config:/deepspeed_config \
-    -B $PROJ_PATH/checkpoint:/checkpoint \
-    -B $LOG_DIR:/logs \
-    -B $SHARED_PATH/models:/models \
-    -B $SHARED_PATH/datasets:/datasets \
-    -B /scratch/lt999001-intern/.cache:/.cache \
-    ../apptainer/llm \
-    accelerate launch \
+accelerate launch \
     --num_processes $((4 * $COUNT_NODE)) \
     --num_machines $COUNT_NODE \
     --multi_gpu \
@@ -71,34 +61,30 @@ apptainer exec --nv \
     --main_process_ip $MASTER_ADDR \
     --main_process_port $MASTER_PORT \
     --dynamo_backend inductor \
-    /scripts/train.py \
-    --pretrained_model_name_or_path /models/Llama-2-13b-chat-hf \
-    --train_file /datasets/alpaca_json/alpaca_train.json \
-    --validation_file /datasets/alpaca_json/alpaca_validation.json \
+    scripts/train.py \
+    --pretrained_model_name_or_path /scratch/lt999001-intern/shared/models/Llama-2-13b-chat-hf \
+    --train_file /scratch/lt999001-intern/shared/datasets/alpaca_json/alpaca_all.json \
+    --validation_file /project/lt999001-intern/shared/datasets/alpaca_json/alpaca_validation.json \
     --seed 42 \
     --max_seq_length 1300 \
-    --output_dir /checkpoint \
+    --output_dir /project/lt999001-intern/checkpoint/full_check \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 4 \
-    --per_device_eval_batch_size 4 \
-    --save_steps 700 \
+    --per_device_train_batch_size 16 \
+    --per_device_eval_batch_size 16 \
+    --save_steps 500 \
     --save_total_limit 5 \
     --learning_rate 8e-5 \
     --weight_decay 0.01 \
-    --warmup_ratio 0.05 \
+    --warmup_ratio 0.03 \
     --lr_scheduler_type cosine \
     --gradient_accumulation_steps 1 \
-    --deepspeed "/deepspeed_config/deepspeed_optim.json" \
+    --deepspeed ./deepspeed_config/deepspeed_3.json \
     --gradient_checkpointing True \
     --tf32 True \
     --bf16 True \
-    --fp16 False \
-    --max_grad_norm 1.0 \
-    --logging_steps 10 \
     --dataloader_num_workers 16 \
     --ddp_find_unused_parameters False \
-    --log_dir /logs \
+    --log_dir $LOG_DIR \
     --node_number $SLURM_PROCID
-
 #qwen: 1100
 #llama: 1300
