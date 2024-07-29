@@ -3,6 +3,7 @@
 import inspect
 import json
 import os
+import psutil
 
 import pandas as pd
 from llm_finetune.arguments import (DataArguments, LoggingArguments,
@@ -77,6 +78,7 @@ class PerformanceLogger:
             on_collect=self.on_collect,
             interval=1.0,
         )
+        self.cpu_count = psutil.cpu_count(logical=False)
         self.start_time = None
 
     def new_res(self):
@@ -99,14 +101,38 @@ class PerformanceLogger:
             self.df.to_csv(self.filepath, index=False)
         self.df = pd.DataFrame()
 
+    def get_cpu_usage_per_core(self):
+        """Returns the CPU usage per core."""
+        cpu_percent = psutil.cpu_percent(interval=0.1, percpu=True)
+        return {f"cpu_core_{i+1}": percent for i, percent in enumerate(cpu_percent[:self.cpu_count])}
+
+    def clean_column_name(self, col):
+        """Cleans the column name."""
+        if col.startswith("metrics-daemon/host/"):
+            col = col[len("metrics-daemon/host/"):]
+        return col
+
     def on_collect(self, metrics):
         """Collects metrics."""
 
         metrics['tag'] = self.tag
 
+        cpu_metrics = self.get_cpu_usage_per_core()
+        metrics.update(cpu_metrics)
+
         df_metrics = pd.DataFrame.from_records([metrics])
 
-        self.df = pd.concat([self.df, df_metrics], ignore_index=True)
+        df_metrics.columns = [self.clean_column_name(col) for col in df_metrics.columns]
+
+        if self.df.empty:
+            self.df = df_metrics
+        else:
+            for col in df_metrics.columns:
+                if col not in self.df.columns:
+                    self.df[col] = None
+
+            self.df = pd.concat([self.df, df_metrics], ignore_index=True)
+
         return True
 
 
