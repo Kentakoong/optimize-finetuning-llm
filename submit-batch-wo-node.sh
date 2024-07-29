@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p gpu --exclusive               # Specify partition [Compute/Memory/GPU]
-#SBATCH -N 32 -c 64              # Specify number of nodes and processors per task
+#SBATCH -c 64                            # Specify number of processors per task
 #SBATCH --ntasks-per-node=1		         # Specify number of tasks per node
 #SBATCH --gpus-per-node=4		         # Specify total number of GPUs
 #SBATCH -t 1:00:00                       # Specify maximum time limit (hour: minute: second)

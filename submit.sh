@@ -1,7 +1,2 @@
-echo "Moving old logs"
-
-mv ./logs/* ../logs
-
-echo "Done moving old logs"
-
-sbatch submit-batch.sh
+sbatch -N 1 submit-batch-wo-node.sh
+sbatch -N 2 submit-batch-wo-node.sh
