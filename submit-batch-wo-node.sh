@@ -6,7 +6,37 @@
 #SBATCH -t 1:00:00                       # Specify maximum time limit (hour: minute: second)
 #SBATCH -A lt999001                      # Specify project name
 #SBATCH -J finetune_test                 # Specify job name
-#SBATCH -o /project/lt999001-intern/wongkraiwich/working/llm/logs/finetune-%j.out        # Specify output file
+#SBATCH -o ./logs/finetune-%j.out        # Specify output file
+
+NTHREADS="4"
+PTHREADS="4"
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+    --nthreads)
+        NTHREADS="$2"
+        shift 2
+        ;;
+    --pthreads)
+        PTHREADS="$2"
+        shift 2
+        ;;
+    *)
+        echo "Unknown parameter passed: $1"
+        exit 1
+        ;;
+    esac
+done
+
+# Check if both parameters are provided
+if [[ -z "$NTHREADS" || -z "$PTHREADS" ]]; then
+    echo "Usage: $0 --nthreads <value> --pthreads <value>"
+    exit 1
+fi
+
+# Use the variables as needed
+echo "NTHREADS: $NTHREADS"
+echo "PTHREADS: $PTHREADS"
 
 START=$(date)
 starttime=$(date +%s)
@@ -22,16 +52,16 @@ export COUNT_NODE=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l)
 echo go $COUNT_NODE
 echo $HOSTNAMES
 
-LOG_DIR=./logs/finetune-${SLURM_JOB_ID}
+export LOG_DIR="./logs/finetune-${SLURM_JOB_ID}"
 
 mkdir -p $LOG_DIR
 mkdir -p $LOG_DIR/node_log
 
 export NCCL_DEBUG=INFO
 export NCCL_SOCKET_IFNAME=hsn
-export NCCL_SOCKET_NTHREADS=4
-export NCCL_NSOCKS_PERTHREAD=4
+export NCCL_SOCKET_NTHREADS=$NTHREADS
+export NCCL_NSOCKS_PERTHREAD=$PTHREADS
 export NCCL_DEBUG_FILE=${LOG_DIR}/nccl-${SLURM_JOB_ID}.log
 export NCCL_TOPO_DUMP_FILE=${LOG_DIR}/nccl-topo-${SLURM_JOB_ID}.log
 
-srun --output=${LOG_DIR}/node_log/node-%t.out sh smultinode.sh --log_dir $LOG_DIR
+srun --output=${LOG_DIR}/node_log/node-%t.out sh smultinode.sh

@@ -2,22 +2,6 @@
 #sleep 30
 #fi_info -p efa -t FI_EP_RDM
 
-# HOSTNAMES MASTER_ADDR MASTER_PORT COUNT_NODE are coming from the main script
-
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-    --log_dir)
-        LOG_DIR="$2"
-        shift
-        ;;
-    *)
-        echo "Unknown parameter passed: $1"
-        exit 1
-        ;;
-    esac
-    shift
-done
-
 module restore
 module load Mamba
 module load Apptainer
