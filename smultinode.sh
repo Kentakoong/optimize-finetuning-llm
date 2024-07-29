@@ -73,7 +73,7 @@ apptainer exec --nv \
     --dynamo_backend inductor \
     /scripts/train.py \
     --pretrained_model_name_or_path /models/Llama-2-13b-chat-hf \
-    --train_file /datasets/alpaca_json/alpaca_train.json \
+    --train_file /datasets/alpaca_json/alpaca_full.json \
     --validation_file /datasets/alpaca_json/alpaca_validation.json \
     --seed 42 \
     --max_seq_length 1300 \
