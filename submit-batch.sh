@@ -6,7 +6,7 @@
 #SBATCH -t 1:00:00                       # Specify maximum time limit (hour: minute: second)
 #SBATCH -A lt999001                      # Specify project name
 #SBATCH -J finetune_test                 # Specify job name
-#SBATCH -o /project/lt999001-intern/wongkraiwich/working/llm/logs/finetune-%j.out        # Specify output file
+#SBATCH -o ./logs/finetune-%j.out        # Specify output file
 
 START=$(date)
 starttime=$(date +%s)

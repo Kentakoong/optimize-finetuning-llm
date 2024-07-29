@@ -28,12 +28,6 @@ while [[ "$#" -gt 0 ]]; do
     esac
 done
 
-# Check if both parameters are provided
-if [[ -z "$NTHREADS" || -z "$PTHREADS" ]]; then
-    echo "Usage: $0 --nthreads <value> --pthreads <value>"
-    exit 1
-fi
-
 # Use the variables as needed
 echo "NTHREADS: $NTHREADS"
 echo "PTHREADS: $PTHREADS"
@@ -52,7 +46,11 @@ export COUNT_NODE=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l)
 echo go $COUNT_NODE
 echo $HOSTNAMES
 
-export LOG_DIR="./logs/finetune-${SLURM_JOB_ID}"
+if [[ -z "$NTHREADS" || -z "$PTHREADS" ]]; then
+    export LOG_DIR="./logs/finetune-${SLURM_JOB_ID}"
+else
+    export LOG_DIR="./logs/finetune-${SLURM_JOB_ID}-nthreads-${NTHREADS}-pthreads-${PTHREADS}"
+fi
 
 mkdir -p $LOG_DIR
 mkdir -p $LOG_DIR/node_log
