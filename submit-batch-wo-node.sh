@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH -p gpu --exclusive               # Specify partition [Compute/Memory/GPU]
+#SBATCH -p gpu-devel --exclusive               # Specify partition [Compute/Memory/GPU]
 #SBATCH -c 64                            # Specify number of processors per task
 #SBATCH --ntasks-per-node=1		         # Specify number of tasks per node
 #SBATCH --gpus-per-node=4		         # Specify total number of GPUs
 #SBATCH -t 1:00:00                       # Specify maximum time limit (hour: minute: second)
 #SBATCH -A lt999001                      # Specify project name
-#SBATCH -J finetune_test                 # Specify job name
+#SBATCH -J offload                 # Specify job name
 #SBATCH -o ./logs/finetune-%j.out        # Specify output file
 
 NTHREADS="4"
@@ -42,6 +42,7 @@ export HOSTNAMES=$(scontrol show hostnames "$SLURM_JOB_NODELIST")
 export MASTER_ADDR=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 export MASTER_PORT=12802
 export COUNT_NODE=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l)
+export SLURM_PROCID=SLURM_PROCID
 
 echo go $COUNT_NODE
 echo $HOSTNAMES

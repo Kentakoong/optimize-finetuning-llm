@@ -27,7 +27,6 @@ export LOG_DIR="./logs/finetune-${SLURM_JOB_ID}"
 mkdir -p $LOG_DIR
 mkdir -p $LOG_DIR/node_log
 
-
 export NCCL_DEBUG=INFO
 export NCCL_SOCKET_IFNAME=hsn
 export NCCL_SOCKET_NTHREADS=4

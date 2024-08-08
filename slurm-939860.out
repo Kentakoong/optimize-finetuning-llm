@@ -1,0 +1,7 @@
+[2024-07-30 15:11:37,850] [WARNING] [real_accelerator.py:162:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+[2024-07-30 15:11:37,940] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cpu (auto detect)
+Processing zero checkpoint '/project/lt999001-intern/checkpoint/full_933291/checkpoint-26/global_step26'
+Detected checkpoint of type zero stage 3, world_size: 128
+Parsing checkpoint created by deepspeed==0.14.4
+Reconstructed Trainable fp32 state dict with 363 params 13015864320 elements
+Saving fp32 state dict to /project/lt999001-intern/checkpoint/full_933291/checkpoint-26/pytorch_model.bin

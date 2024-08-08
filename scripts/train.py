@@ -83,7 +83,8 @@ def train():
         attn_implementation="flash_attention_2",
         local_files_only=True
     )
-
+    model.to('cuda')
+    model.to('cuda')
     collector.change_tag("load_token")
 
     tokenizer = AutoTokenizer.from_pretrained(

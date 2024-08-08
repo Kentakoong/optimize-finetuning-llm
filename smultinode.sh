@@ -4,16 +4,21 @@
 
 module restore
 module load Mamba
-module load Apptainer
 module load PrgEnv-gnu
 module load cpe-cuda/23.03
 module load cudatoolkit/23.3_11.8
+module use /project/lt999001-intern/.local/easybuild/modules/all
+module load libaio/0.3.113
 
 # module load cudatoolkit/23.3_11.8
-# module load gcc/10.3.0
+module load gcc
+
 
 conda deactivate
-conda activate ./env
+conda activate ./env-aio
+
+echo -------ds_report---------
+ds_report
 
 echo -------ENVIRONMENT-------
 echo myuser=$(whoami)
@@ -43,10 +48,16 @@ export TORCH_HOME=".cache"
 export XDG_CACHE_HOME=".cache"
 export TRITON_CACHE_DIR=".cache"
 export BNB_CUDA_VERSION=118
+
+export LIBRARY_PATH="/opt/nvidia/hpc_sdk/Linux_x86_64/23.3/math_libs/11.8/lib64:$LIBRARY_PATH"
+export LD_LIBRARY_PATH="/opt/nvidia/hpc_sdk/Linux_x86_64/23.3/math_libs/11.8/lib64:$LD_LIBRARY_PATH"
+
+
+
 # export CUDA_HOME="/usr/local/cuda"
 
 echo ------DEEPSPEED--------
-cat "deepspeed_config/deepspeed_3.json"
+cat "deepspeed_config/deepspeed_infinity.json"
 echo -----------------------
 
 # PROJ_PATH=/project/lt999001-intern/wongkraiwich/working/llm/finetune
@@ -78,7 +89,7 @@ accelerate launch \
     --warmup_ratio 0.03 \
     --lr_scheduler_type cosine \
     --gradient_accumulation_steps 1 \
-    --deepspeed ./deepspeed_config/deepspeed_3.json \
+    --deepspeed ./deepspeed_config/deepspeed_infinity.json \
     --gradient_checkpointing True \
     --tf32 True \
     --bf16 True \
