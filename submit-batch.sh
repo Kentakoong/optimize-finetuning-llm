@@ -14,15 +14,18 @@ module load PrgEnv-gnu
 module load cpe-cuda/23.03
 module load cudatoolkit/23.3_11.8
 
-NTHREADS="8"
-PTHREADS="2"
-BATCH_SIZE="4"
-DEEPSPEED_STAGE="2"
-MODEL_SIZE="7b"
-NCCL_TESTING="0"
-TASK="finetune"
-RUN_WITH="conda"
-ENV_PATH=""
+if [ -f pre-submit.sh ]; then
+    source pre-submit.sh
+fi
+
+: "${NTHREADS:=8}"
+: "${PTHREADS:=2}"
+: "${BATCH_SIZE:=4}"
+: "${DEEPSPEED_STAGE:=2}"
+: "${MODEL_SIZE:=7b}"
+: "${TASK:=finetune}"
+: "${RUN_WITH:=conda}"
+: "${ENV_PATH:=}"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -64,10 +67,6 @@ while [[ "$#" -gt 0 ]]; do
         ;;
     esac
 done
-
-if [ -f pre-submit.sh ]; then
-    source pre-submit.sh
-fi
 
 if [ "$ENV_PATH" == "" ]; then
     echo "ENV_PATH is not set, please set the path to the environment using --env_path"
