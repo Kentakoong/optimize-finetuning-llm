@@ -1,19 +1,20 @@
-import transformers
-from torch import Tensor
+"""Data collators for fine-tuning language models."""
 
-from torch.nn.utils.rnn import pad_sequence
-
-from typing import Sequence, Dict
 from dataclasses import dataclass
+from typing import Dict, Sequence
+
+from transformers import PreTrainedTokenizer
+from torch import Tensor
+from torch.nn.utils.rnn import pad_sequence
 
 from .constant import IGNORE_INDEX
 
 
 @dataclass
-class DataCollatorForSupervisedDataset(object):
+class DataCollatorForSupervisedDataset:
     """Collate examples for supervised fine-tuning."""
 
-    tokenizer: transformers.PreTrainedTokenizer
+    tokenizer: PreTrainedTokenizer
 
     def __call__(self, instances: Sequence[Dict]) -> Dict[str, Tensor]:
         input_ids, labels = tuple(
@@ -23,7 +24,7 @@ class DataCollatorForSupervisedDataset(object):
         input_ids = pad_sequence(
             input_ids,
             batch_first=True,
-            padding_value=self.tokenizer.pad_token_id,
+            padding_value=float(self.tokenizer.pad_token_id or 0),
         )
         labels = pad_sequence(
             labels,
@@ -33,5 +34,5 @@ class DataCollatorForSupervisedDataset(object):
         return dict(
             input_ids=input_ids,
             labels=labels,
-            attention_mask=input_ids.ne(self.tokenizer.pad_token_id),
+            attention_mask=input_ids.ne(float(self.tokenizer.pad_token_id or 0)),
         )

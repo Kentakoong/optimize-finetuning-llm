@@ -13,5 +13,8 @@ class EpochTimingCallback(TrainerCallback):
         self.epoch_start_time = time.time()
 
     def on_epoch_end(self, args, state, control, **kwargs):
-        epoch_time = time.time() - self.epoch_start_time
+        if self.epoch_start_time is not None:
+            epoch_time = time.time() - self.epoch_start_time
+        else:
+            epoch_time = 0.0
         print(f"Epoch {state.epoch} took {epoch_time:.2f} seconds")

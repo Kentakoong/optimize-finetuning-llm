@@ -3,7 +3,7 @@
         "enabled": true
     },
     "optimizer": {
-        "type": "AdamW",
+        "type": "Adam",
         "params": {
             "lr": "auto",
             "betas": [
@@ -24,25 +24,19 @@
         }
     },
     "zero_optimization": {
-        "stage": 3,
+        "stage": 1,
         "overlap_comm": true,
         "contiguous_gradients": true,
-        "sub_group_size": 1e9,
         "reduce_bucket_size": 2e8,
-        "stage3_prefetch_bucket_size": "auto",
-        "stage3_param_persistence_threshold": "auto",
-        "stage3_max_live_parameters": 1e9,
-        "stage3_max_reuse_distance": 1e9,
-        "stage3_gather_16bit_weights_on_model_save": false,
         "allgather_partitions": true,
         "allgather_bucket_size": 2e8,
         "reduce_scatter": true
     },
     "gradient_accumulation_steps": "auto",
-    "gradient_clipping": 1.0,
     "steps_per_print": 5,
     "train_batch_size": "auto",
     "train_micro_batch_size_per_gpu": "auto",
+    "gradient_clipping": 1.0,
     "wall_clock_breakdown": false,
     "activation_checkpointing": {
         "partition_activations": true,

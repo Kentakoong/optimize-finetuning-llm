@@ -164,3 +164,6 @@ cython_debug/
 checkpoint/
 .cache/
 logs/
+submit.sh
+submit-testing.sh
+pre-submit.sh

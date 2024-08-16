@@ -1,47 +1,38 @@
+# Optimize LLM Fine-tuning for LANTA
+
 ## Installation
 
-Repository preparation
+### Install using Mamba
 
 ```bash
-git clone https://github.com/boat1603/SuperAI_LLM_FineTune.git
-cd ./SuperAI_LLM_FineTune
-```
+mamba create -n lanta-llm python=3.10
 
-### Install using Conda
+mamba activate lanta-llm
 
-```bash
-ml Mamba
-conda create -p ./env python=3.10.0 -y
-conda activate ./env
-pip install -e .
-```
+cd <base-path-to-repo>
 
-### Install using Apptainer (Optional)
-
-```bash
-ml Apptainer
-apptainer build ./llm-finetune.sif docker://boat1603/llm-finetune:latest
+bash shell/install-packages.sh
 ```
 
 ## Submit Train Model
 
 ```bash
-sbatch submit_multinode.sh
+sbatch submit-batch.sh
 ```
 
-for Apptainer
-```bash
-sbatch submit_multinode_apptainer.sh
-```
+### Options
 
-Note:
-
-- Change training config via `./smultinode.sh` or `./smultinode_apptainer.sh` (for apptainer).
-- When using Deepspeed training Scheduler will follow the Deepspeed config.
-- You can setup training spec in `./submit_multinode.sh` or `submit_multinode_apptainer.sh` following [our guideline](https://openthaigpt.gitbook.io/openthaigpt-guideline/lanta/slurm).
-
-## Convert Deepspeed to FP32
-
-```bash
-sbatch ./submit_zero_to_fp32.sh
-```
+- `-N`: Specifies the number of nodes.
+- `--nthreads`: Specifies the number of CPU helper threads used per network connection for socket transport. (default: `8`)
+- `--pthreads`: Specifies the number of sockets opened by each helper thread of the socket transport. (default: `2`)
+- `--batch_size`: Specifies the batch size. (default: `4`)
+- `--deepspeed_stage`: Specifies the deepspeed stage. (default: `2`)
+- `--model_size`: Specifies the model size. (default: `7b`)
+- `--task`: Specifies the task. (default: `default`)
+  
+  **Options are:**
+  - `nccl`: To name the log folder as NCCL testing structure (`NTHREADS`nth-`PTHREADS`pth-`SLURM_JOB_ID`)
+  - `scaling`: To name the log folder for scaling (`STAGE`-`MODEL_SIZE`/`COUNT_NODE`n-`BATCH_SIZE`b-`SLURM_JOB_ID`)
+  - `default`: To name the log folder as default (`COUNT_NODE`n-`BATCH_SIZE`b-`SLURM_JOB_ID`)
+- `--run_with`: Specifies the environment to run the script. (default: `conda`)
+- `--env_path`: Specifies the path to the environment.

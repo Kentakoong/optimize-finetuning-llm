@@ -1,0 +1,14 @@
+pyarrow==14.0.2
+transformers[torch]
+accelerate
+datasets
+deepspeed
+bitsandbytes
+peft
+trl
+sentencepiece
+protobuf
+tqdm
+urllib3
+requests
+mtnlog

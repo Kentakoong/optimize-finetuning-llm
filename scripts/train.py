@@ -1,12 +1,7 @@
 """Main training script."""
 
 import inspect
-import json
-import os
-import psutil
-
-import pandas as pd
-from mtnlog import JSONLogger, PerformanceLogger
+import logging
 from llm_finetune.arguments import (DataArguments, LoggingArguments,
                                     ModelArguments, TrainingArguments)
 from llm_finetune.dataset import make_supervised_data_module
@@ -17,13 +12,18 @@ from transformers import (AutoModelForCausalLM, AutoTokenizer,
                           BitsAndBytesConfig, HfArgumentParser, set_seed)
 from trl import SFTConfig, SFTTrainer
 
+from mtnlog import JSONLogger, PerformanceLogger, PerformancePlotter
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 
 def extract_dict(obj):
     """Extracts a dictionary from an object."""
     if hasattr(obj, '__dict__'):
         return extract_dict(obj.__dict__)
-    else:
-        return obj
+
+    return obj
 
 
 def combine_keys_to_one_layer_dict(d, sep="."):
@@ -42,28 +42,21 @@ def combine_keys_to_one_layer_dict(d, sep="."):
     return new_dict
 
 
-def deactivate_and_collect(collector, df, metric, tag=None):
-    """Deactivates the collector and collects metrics."""
-    df_metrics = pd.DataFrame.from_records(metric, index=[len(df)])
-    updated_df = pd.concat([df, df_metrics], ignore_index=True)
-    collector.deactivate(tag=tag)
-    return updated_df
-
-
 def train():
     """Main training function."""
 
     parser = HfArgumentParser(
-        (ModelArguments, DataArguments, TrainingArguments, LoggingArguments)
-    )
+        (ModelArguments, DataArguments, TrainingArguments, LoggingArguments))  # type: ignore
 
-    model_args, data_args, training_args, logging_args = parser.parse_args_into_dataclasses()
+    parser_args = parser.parse_args_into_dataclasses()
+    model_args, data_args, training_args, logging_args = parser_args  # type: ignore
 
     set_seed(training_args.seed)
 
-    collector = PerformanceLogger(log_dir=f"{logging_args.log_dir}/metric",
-                                  log_node=logging_args.node_number,
-                                  )
+    collector = PerformanceLogger(
+        log_dir=f"{logging_args.log_dir}/metric",
+        log_node=logging_args.node_number,
+    )
 
     collector.change_tag("load_model")
 
@@ -109,8 +102,7 @@ def train():
     sft_config_params = sft_config_signature.parameters
 
     # Filter out unexpected arguments
-    filtered_args = {k: v for k, v in vars(
-        training_args).items() if k in sft_config_params}
+    filtered_args = {k: v for k, v in vars(training_args).items() if k in sft_config_params}
 
     # Explicitly pass all training arguments
     config = SFTConfig(**filtered_args)
@@ -159,9 +151,13 @@ def train():
         trainer.model, 'module') else trainer.model
     model_to_save.save_pretrained(training_args.output_dir)
 
+    collector.stop()
+
     logger.log(trainer.state.log_history, filename="state")
 
-    collector.stop()
+    plotter = PerformancePlotter(base_dir=logging_args.log_dir, log_node=logging_args.node_number)
+
+    plotter.plot()
 
 
 if __name__ == "__main__":
