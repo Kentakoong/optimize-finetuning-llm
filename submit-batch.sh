@@ -26,6 +26,7 @@ fi
 : "${TASK:=finetune}"
 : "${RUN_WITH:=conda}"
 : "${ENV_PATH:=}"
+: "${SCALING_TYPE:=}"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -61,12 +62,18 @@ while [[ "$#" -gt 0 ]]; do
         ENV_PATH="$2"
         shift 2
         ;;
+    --scaling_type)
+        SCALING_TYPE="$2"
+        shift 2
+        ;;
     *)
         echo "Unknown parameter passed: $1"
         exit 1
         ;;
     esac
 done
+
+echo SCALING_TYPE: $SCALING_TYPE
 
 if [ "$ENV_PATH" == "" ]; then
     echo "ENV_PATH is not set, please set the path to the environment using --env_path"
@@ -99,7 +106,13 @@ export COUNT_NODE=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l)
 if [ "$TASK" == "nccl" ]; then
     LOG_DIR="./logs/${NTHREADS}nth-${PTHREADS}pth-${SLURM_JOB_ID}" # for nccl testing
 elif [ "$TASK" == "scaling" ]; then
-    LOG_DIR="../scaling/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for scaling
+    if [ "$SCALING_TYPE" == "weak" ]; then
+        LOG_DIR="../scaling/weak/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for weak scaling
+    elif [ "$SCALING_TYPE" == "strong" ]; then
+        LOG_DIR="../scaling/strong/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for strong scaling
+    else 
+        LOG_DIR="../scaling/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for scaling
+    fi
 else 
     LOG_DIR="./logs/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}"
 fi
