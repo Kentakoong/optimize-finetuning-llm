@@ -4,7 +4,7 @@
 #SBATCH --ntasks-per-node=1		         # Specify number of tasks per node
 #SBATCH --gpus-per-node=4		         # Specify total number of GPUs
 #SBATCH -t 1:00:00                       # Specify maximum time limit (hour: minute: second)
-#SBATCH -A lt999001                      # Specify project name
+#SBATCH -A xxyyyyyy                      # Specify project name
 #SBATCH -J scaling                       # Specify job name
 #SBATCH -o ./logs/finetune-%j.out        # Specify output file
 
@@ -131,11 +131,6 @@ export NCCL_TOPO_DUMP_FILE=${LOG_DIR}/nccl-topo-${SLURM_JOB_ID}.log
 export BATCH_SIZE=$BATCH_SIZE
 export DEEPSPEED_STAGE=$DEEPSPEED_STAGE
 export MODEL_SIZE=$MODEL_SIZE
-
-export PROJ_PATH="/project/lt999001-intern/wongkraiwich/working/llm/finetune"
-export SHARED_PATH="/scratch/lt999001-intern/shared"
-export CACHE_PATH="/scratch/lt999001-intern/.cache"
-export ENV_PATH="/project/lt999001-intern/wongkraiwich/env/deeptransformers"
 
 export TORCH_NCCL_BLOCKING_WAIT=0
 export TORCH_EXTENSIONS_DIR=$CACHE_PATH
