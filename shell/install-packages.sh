@@ -43,4 +43,4 @@ pip install 'flash-attn' --no-build-isolation
 
 pip install -r requirements.txt 
 
-pip install -e ../
+pip install -e .
