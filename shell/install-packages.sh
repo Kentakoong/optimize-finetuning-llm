@@ -15,10 +15,10 @@ while [[ "$#" -gt 0 ]]; do
     esac
 done
 
-if [ -z "$(pwd | grep 'finetune')" ]; then
-    echo "Please run this script from the scripts directory"
-    exit 1
-fi
+# if [ -z "$(pwd | grep 'finetune')" ]; then
+#     echo "Please run this script from the scripts directory"
+#     exit 1
+# fi
 
 if [ -z "$ENV_PATH" ]; then
     echo "ENV_PATH is not set, please set it with --env_path"
