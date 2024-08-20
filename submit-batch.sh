@@ -73,8 +73,6 @@ while [[ "$#" -gt 0 ]]; do
     esac
 done
 
-echo SCALING_TYPE: $SCALING_TYPE
-
 if [ "$ENV_PATH" == "" ]; then
     echo "ENV_PATH is not set, please set the path to the environment using --env_path"
     exit 1

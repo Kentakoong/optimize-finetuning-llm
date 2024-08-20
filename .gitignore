@@ -167,3 +167,4 @@ logs/*
 submit.sh
 submit-testing.sh
 pre-submit.sh
+core
