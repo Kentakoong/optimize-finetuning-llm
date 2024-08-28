@@ -4,7 +4,7 @@
 #SBATCH --ntasks-per-node=1		         # Specify number of tasks per node
 #SBATCH --gpus-per-node=4		         # Specify total number of GPUs
 #SBATCH -t 1:00:00                       # Specify maximum time limit (hour: minute: second)
-#SBATCH -A xxyyyyyy                      # Specify project name
+#SBATCH -A ltxxxxxx                      # Specify project name
 #SBATCH -J scaling                       # Specify job name
 #SBATCH -o ./logs/finetune-%j.out        # Specify output file
 
@@ -27,6 +27,7 @@ fi
 : "${RUN_WITH:=conda}"
 : "${ENV_PATH:=}"
 : "${SCALING_TYPE:=}"
+: "${WO_LORA:=NO}"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -64,6 +65,10 @@ while [[ "$#" -gt 0 ]]; do
         ;;
     --scaling_type)
         SCALING_TYPE="$2"
+        shift 2
+        ;;
+    --wo_lora)
+        WO_LORA="$2"
         shift 2
         ;;
     *)
@@ -104,10 +109,14 @@ export COUNT_NODE=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l)
 if [ "$TASK" == "nccl" ]; then
     LOG_DIR="./logs/${NTHREADS}nth-${PTHREADS}pth-${SLURM_JOB_ID}" # for nccl testing
 elif [ "$TASK" == "scaling" ]; then
+    folstru=""
+    if [ "$WO_LORA" == "YES" ]; then
+        folstru="/wo-lora"
+    fi
     if [ "$SCALING_TYPE" == "weak" ]; then
-        LOG_DIR="../scaling/weak/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for weak scaling
+        LOG_DIR="../scaling$folstru/weak/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for weak scaling
     elif [ "$SCALING_TYPE" == "strong" ]; then
-        LOG_DIR="../scaling/strong/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for strong scaling
+        LOG_DIR="../scaling$folstru/strong/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for strong scaling
     else 
         LOG_DIR="../scaling/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for scaling
     fi

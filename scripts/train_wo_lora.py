@@ -60,19 +60,19 @@ def train():
 
     collector.change_tag("load_model")
 
-    quantization_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=bfloat16,
-        bnb_4bit_quant_storage=bfloat16,
-        bnb_4bit_use_double_quant=False,
-    )
+    # quantization_config = BitsAndBytesConfig(
+    #     load_in_4bit=True,
+    #     bnb_4bit_quant_type="nf4",
+    #     bnb_4bit_compute_dtype=bfloat16,
+    #     bnb_4bit_quant_storage=bfloat16,
+    #     bnb_4bit_use_double_quant=False,
+    # )
 
     model = AutoModelForCausalLM.from_pretrained(
         model_args.pretrained_model_name_or_path,
         torch_dtype=bfloat16,
         use_cache=False,
-        quantization_config=quantization_config,
+        # quantization_config=quantization_config,
         attn_implementation="flash_attention_2",
         local_files_only=True
     )
@@ -107,13 +107,13 @@ def train():
     # Explicitly pass all training arguments
     config = SFTConfig(**filtered_args)
 
-    peft_config = LoraConfig(
-        lora_alpha=64,
-        lora_dropout=0.05,
-        r=128,
-        bias="none",
-        task_type="CAUSAL_LM",
-    )
+    # peft_config = LoraConfig(
+    #     lora_alpha=64,
+    #     lora_dropout=0.05,
+    #     r=128,
+    #     bias="none",
+    #     task_type="CAUSAL_LM",
+    # )
 
     trainer = SFTTrainer(
         model=model,
@@ -121,7 +121,7 @@ def train():
         args=config,
         **data_module,
         callbacks=[EpochTimingCallback()],
-        peft_config=peft_config,
+        # peft_config=peft_config,
         packing=False,
     )
 
@@ -130,7 +130,7 @@ def train():
         "data": data_args.__dict__,
         "training": training_args.__dict__,
         "logging": logging_args.__dict__,
-        "quantization_config": quantization_config.__dict__,
+        # "quantization_config": quantization_config.__dict__,
         "model_config": model.config.__dict__,
         "tokenizer_config": tokenizer.__dict__,
         "trainer_config": trainer.args.__dict__,

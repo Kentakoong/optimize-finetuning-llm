@@ -8,6 +8,14 @@ echo ""
 
 echo "----LAUNCHING TRAINING----"
 
+if [ "$WO_LORA" == "YES" ]; then
+    echo "Training without LoRA"
+    filename="train_wo_lora.py"
+else
+    echo "Training with LoRA"
+    filename="train.py"
+fi
+
 accelerate launch \
     --num_processes $((4 * $COUNT_NODE)) \
     --num_machines $COUNT_NODE \
@@ -17,7 +25,7 @@ accelerate launch \
     --main_process_ip $MASTER_ADDR \
     --main_process_port $MASTER_PORT \
     --dynamo_backend inductor \
-    $PROJ_PATH/scripts/train.py \
+    $PROJ_PATH/scripts/$filename \
         --pretrained_model_name_or_path "$SHARED_PATH/models/Llama-2-$MODEL_SIZE-chat-hf" \
         --train_file $SHARED_PATH/datasets/alpaca_json/alpaca_all.json \
         --validation_file $SHARED_PATH/datasets/alpaca_json/alpaca_validation.json \

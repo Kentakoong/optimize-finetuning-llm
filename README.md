@@ -18,7 +18,9 @@ bash shell/install-packages.sh --env_path <your-env-path>
 
 Edit the `submit-batch.sh` file to set your account
 
-from `#SBATCH -A xxyyyyyy` to `#SBATCH -A <your-credit-account>`
+From:  `#SBATCH -A xxyyyyyy`
+
+To:&nbsp;&nbsp;&nbsp;&nbsp; `#SBATCH -A <your-credit-account>`
 
 ## Submit Train Model
 
@@ -46,18 +48,27 @@ export ENV_PATH=<your-env-path>
 The following options are used for `arguments` and `pre-submit file` for when using arguments with the script.
 (N/A means that the option isn't available for either `arguments` or `pre-submit file`.)
 
-- `--nthreads` | `NTHREADS`: Specifies the number of CPU helper threads used per network connection for socket transport. (default: `8`)
-- `--pthreads` | `PTHREADS`: Specifies the number of sockets opened by each helper thread of the socket transport. (default: `2`)
-- `--batch_size` | `BATCH_SIZE`: Specifies the batch size. (default: `4`)
-- `--deepspeed_stage` | `DEEPSPEED_STAGE`: Specifies the deepspeed stage. (default: `2`)
-- `--model_size` | `MODEL_SIZE`: Specifies the model size. (default: `7b`)
-- `--task` | `TASK`: Specifies the task. (default: `default`)
-  **Options are:**
-  - `nccl`: To name the log folder as NCCL testing structure (`NTHREADS`nth-`PTHREADS`pth-`SLURM_JOB_ID`)
-  - `scaling`: To name the log folder for scaling (`STAGE`-`MODEL_SIZE`/`COUNT_NODE`n-`BATCH_SIZE`b-`SLURM_JOB_ID`)
-  - `default`: To name the log folder as default (`COUNT_NODE`n-`BATCH_SIZE`b-`SLURM_JOB_ID`)
-- `--run_with` | `RUN_WITH`: Specifies the environment to run the script. (default: `conda`)
-- `N/A` | `BASE_PATH`: Specifies the base path to the repository.
-- `N/A` | `SHARED_PATH`: Specifies the shared path.
-- `N/A` | `CACHE_PATH`: Specifies the cache path.
-- `--env_path` | `ENV_PATH`: Specifies the path to the environment.
+| `Arguments`         | `Pre-Submit file` | `Default Value` | `Description`                                                                                |
+| ------------------- | ----------------- | --------------- | -------------------------------------------------------------------------------------------- |
+| `--nthreads`        | `NTHREADS`        | `8`             | Specifies the number of CPU helper threads used per network connection for socket transport. |
+| `--pthreads`        | `PTHREADS`        | `2`             | Specifies the number of sockets opened by each helper thread of the socket transport.        |
+| `--batch_size`      | `BATCH_SIZE`      | `4`             | Specifies the batch size.                                                                    |
+| `--deepspeed_stage` | `DEEPSPEED_STAGE` | `2`             | Specifies the deepspeed stage.                                                               |
+| `--model_size`      | `MODEL_SIZE`      | `7b`            | Specifies the model size.                                                                    |
+| `--task`            | `TASK`            | `default`       | Specifies the task. [More Details](#task-options)                                            |
+| `--run_with`        | `RUN_WITH`        | `conda`         | Specifies the environment to run the script.                                                 |
+| `N/A`               | `PROJ_PATH`       |                 | Specifies the path to the repository.                                                        |
+| `N/A`               | `SHARED_PATH`     |                 | Specifies the shared path.                                                                   |
+| `N/A`               | `CACHE_PATH`      |                 | Specifies the cache path.                                                                    |
+| `--env_path`        | `ENV_PATH`        |                 | Specifies the path to the environment.                                                       |
+
+#### Task Options
+
+**Options are:**
+
+- `nccl`: To name the log folder as NCCL testing structure
+  - `NTHREADS`nth-`PTHREADS`pth-`SLURM_JOB_ID`
+- `scaling`: To name the log folder for scaling
+  - `STAGE`-`MODEL_SIZE`/`COUNT_NODE`n-`BATCH_SIZE`b-`SLURM_JOB_ID`
+- `default`: To name the log folder as default
+  - `COUNT_NODE`n-`BATCH_SIZE`b-`SLURM_JOB_ID`
