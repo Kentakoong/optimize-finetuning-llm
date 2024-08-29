@@ -2,17 +2,17 @@
 
 import inspect
 import logging
+
 from llm_finetune.arguments import (DataArguments, LoggingArguments,
                                     ModelArguments, TrainingArguments)
 from llm_finetune.dataset import make_supervised_data_module
 from llm_finetune.trainer import EpochTimingCallback
-from peft import LoraConfig
-from torch import bfloat16
-from transformers import (AutoModelForCausalLM, AutoTokenizer,
-                          BitsAndBytesConfig, HfArgumentParser, set_seed)
-from trl import SFTConfig, SFTTrainer
-
 from mtnlog import JSONLogger, PerformanceLogger, PerformancePlotter
+from torch import autocast, bfloat16, set_float32_matmul_precision
+from torch import device as torch_device
+from transformers import (AutoModelForCausalLM, AutoTokenizer,
+                          HfArgumentParser, set_seed)
+from trl import SFTConfig, SFTTrainer
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -60,22 +60,16 @@ def train():
 
     collector.change_tag("load_model")
 
-    # quantization_config = BitsAndBytesConfig(
-    #     load_in_4bit=True,
-    #     bnb_4bit_quant_type="nf4",
-    #     bnb_4bit_compute_dtype=bfloat16,
-    #     bnb_4bit_quant_storage=bfloat16,
-    #     bnb_4bit_use_double_quant=False,
-    # )
-
     model = AutoModelForCausalLM.from_pretrained(
         model_args.pretrained_model_name_or_path,
-        torch_dtype=bfloat16,
         use_cache=False,
-        # quantization_config=quantization_config,
-        attn_implementation="flash_attention_2",
+        torch_dtype=bfloat16,
         local_files_only=True
     )
+
+    model.to('cuda')
+
+    model.config.attn_implementation = "flash_attention_2"
 
     collector.change_tag("load_token")
 
@@ -161,4 +155,6 @@ def train():
 
 
 if __name__ == "__main__":
-    train()
+    set_float32_matmul_precision('high')
+    with autocast(device_type='cuda', dtype=bfloat16):
+        train()

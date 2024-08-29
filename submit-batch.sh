@@ -113,12 +113,10 @@ elif [ "$TASK" == "scaling" ]; then
     if [ "$WO_LORA" == "YES" ]; then
         folstru="/wo-lora"
     fi
-    if [ "$SCALING_TYPE" == "weak" ]; then
-        LOG_DIR="../scaling$folstru/weak/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for weak scaling
-    elif [ "$SCALING_TYPE" == "strong" ]; then
-        LOG_DIR="../scaling$folstru/strong/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for strong scaling
+    if [ "$SCALING_TYPE" != "" ]; then
+        LOG_DIR="../scaling$folstru/${SCALING_TYPE}/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}"
     else 
-        LOG_DIR="../scaling/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" # for scaling
+        LOG_DIR="../scaling/stage-${DEEPSPEED_STAGE}/llama-${MODEL_SIZE}/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}" 
     fi
 else 
     LOG_DIR="./logs/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}"

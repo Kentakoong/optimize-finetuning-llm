@@ -38,7 +38,6 @@ accelerate launch \
         --gradient_checkpointing True \
         --tf32 True \
         --bf16 True \
-        --fp16 False \
         --max_grad_norm 1.0 \
         --logging_steps 10 \
         --dataloader_num_workers 16 \
