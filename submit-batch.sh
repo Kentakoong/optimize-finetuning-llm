@@ -124,6 +124,12 @@ else
     LOG_DIR="./logs/${COUNT_NODE}n-${BATCH_SIZE}b-${SLURM_JOB_ID}"
 fi
 
+if [ "$WO_LORA" == "YES" ]; then
+    export filename="train_wo_lora.py"
+else
+    export filename="train.py"
+fi
+
 mkdir -p $LOG_DIR/node_log
 
 export LOG_DIR=$LOG_DIR
@@ -141,18 +147,20 @@ export MODEL_SIZE=$MODEL_SIZE
 
 export TORCH_NCCL_BLOCKING_WAIT=0
 export TORCH_EXTENSIONS_DIR=$CACHE_PATH
-export HF_HUB_CACHE=$CACHE_PATH
-export HF_HOME=$CACHE_PATH
-export HF_DATASETS_CACHE=$CACHE_PATH
+export HF_HUB_CACHE="$CACHE_PATH/huggingface"
+export HF_HOME="$CACHE_PATH/huggingface"
+export HF_DATASETS_CACHE="$CACHE_PATH/huggingface"
 export TORCH_HOME=$CACHE_PATH
 export XDG_CACHE_HOME=$CACHE_PATH
-export TRITON_CACHE_DIR=$CACHE_PATH
+export HF_DATASETS_OFFLINE=1 
+export HF_HUB_OFFLINE=1
 
 echo -------ENVIRONMENT-------
 echo Python Path: $(which python)
 echo Batch Size: $BATCH_SIZE
 echo Deepspeed Stage: $DEEPSPEED_STAGE
 echo Model Size: $MODEL_SIZE
+echo Train with LoRA: $WO_LORA
 echo -------------------------
 echo NTHREADS: $NTHREADS
 echo PTHREADS: $PTHREADS

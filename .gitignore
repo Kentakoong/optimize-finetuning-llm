@@ -165,6 +165,6 @@ checkpoint/
 .cache/
 logs/*
 submit.sh
-submit-testing.sh
+submit-testing*
 pre-submit.sh
 core
