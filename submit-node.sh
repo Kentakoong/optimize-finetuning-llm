@@ -8,6 +8,8 @@ echo ""
 
 echo "----LAUNCHING TRAINING----"
 
+poetry shell
+
 accelerate launch \
     --num_processes $((4 * $COUNT_NODE)) \
     --num_machines $COUNT_NODE \
@@ -23,7 +25,7 @@ accelerate launch \
         --validation_file $SHARED_PATH/datasets/alpaca_json/alpaca_validation.json \
         --seed 42 \
         --max_seq_length 1300 \
-        --output_dir $PROJ_PATH/checkpoint \
+        --output_dir $PROJ_PATH/checkpoint/$SLURM_JOB_ID \
         --num_train_epochs 1 \
         --per_device_train_batch_size $BATCH_SIZE \
         --per_device_eval_batch_size $BATCH_SIZE \

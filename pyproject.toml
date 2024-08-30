@@ -1,11 +1,40 @@
-[project]
-name = "llm_finetune"
+[tool.poetry]
+name = "llm-finetune"
 version = "0.1.0"
-description = "finetune"
+description = ""
+authors = ["Wongkraiwich Chuenchomphu <wongkraiwich@inedible.dev>"]
 readme = "README.md"
-requires-python = ">=3.8"
-classifiers = ["Programming Language :: Python :: 3"]
-dependencies = [
-    "dataclasses",
-    "typing"
-]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+transformers = {extras = ["torch"], version = "^4.44.2"}
+packaging = ">=20.0"
+torch = {version = "^2.4.0+cu118", source = "pytorch-gpu"}
+torchvision = {version = "^0.19.0+cu118", source = "pytorch-gpu"}
+torchaudio = {version = "^2.4.0+cu118", source = "pytorch-gpu"}
+accelerate = "^0.33.0"
+deepspeed = "^0.15.0"
+bitsandbytes = "^0.43.3"
+peft = "^0.12.0"
+trl = "^0.10.1"
+sentencepiece = "^0.2.0"
+protobuf = "^5.28.0"
+tqdm = "^4.66.5"
+urllib3 = "^2.2.2"
+requests = "^2.32.3"
+mtnlog = "^1.2.2"
+ninja = "^1.11.1.1"
+pyarrow = "^17.0.0"
+datasets = "^2.21.0"
+
+[[tool.poetry.source]]
+name = "pytorch-gpu"
+url = "https://download.pytorch.org/whl/cu118"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[scripts]
+postinstall = "shell/postinstall.sh"

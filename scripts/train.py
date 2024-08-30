@@ -7,7 +7,7 @@ from llm_finetune.arguments import (DataArguments, LoggingArguments,
 from llm_finetune.dataset import make_supervised_data_module
 from llm_finetune.trainer import EpochTimingCallback
 from peft import LoraConfig
-from torch import bfloat16
+from torch import autocast, bfloat16, set_float32_matmul_precision
 from transformers import (AutoModelForCausalLM, AutoTokenizer,
                           BitsAndBytesConfig, HfArgumentParser, set_seed)
 from trl import SFTConfig, SFTTrainer
@@ -161,4 +161,6 @@ def train():
 
 
 if __name__ == "__main__":
-    train()
+    set_float32_matmul_precision('high')
+    with autocast(device_type='cuda', dtype=bfloat16):
+        train()

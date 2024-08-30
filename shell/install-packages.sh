@@ -35,12 +35,4 @@ module load cudatoolkit/23.3_11.8
 conda deactivate
 conda activate $ENV_PATH
 
-pip install 'torch' 'torchvision' 'torchaudio' --index-url https://download.pytorch.org/whl/cu118
-
-pip install 'ninja' 'packaging>=20.0'
-
-pip install 'flash-attn' --no-build-isolation
-
-pip install -r requirements.txt 
-
-pip install -e .
+poetry install
