@@ -6,7 +6,15 @@ echo hostname: $(hostname)
 echo "------------------"
 echo ""
 
+echo "----Monitoring for Error----"
+
+source /project/lt999001-intern/shared/mymonitor -f $LOG_DIR/node_log/node-$SLURM_PROCID.out -c "CUDA out of memory" -c "Watchdog caught collective operation timeout" -c "Traceback (most recent call last):" -n 120
+
+sleep 5
+
+echo ""
 echo "----LAUNCHING TRAINING----"
+echo ""
 
 accelerate launch \
     --num_processes $((4 * $COUNT_NODE)) \

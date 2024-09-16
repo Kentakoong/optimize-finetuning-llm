@@ -139,6 +139,12 @@ export NCCL_SOCKET_NTHREADS=$NTHREADS
 export NCCL_NSOCKS_PERTHREAD=$PTHREADS
 export NCCL_DEBUG_FILE=${LOG_DIR}/nccl-${SLURM_JOB_ID}.log
 export NCCL_TOPO_DUMP_FILE=${LOG_DIR}/nccl-topo-${SLURM_JOB_ID}.log
+
+export FI_MR_CACHE_MONITOR=userfaultd
+export FI_CXI_DISABLE_HOST_REGISTER=1
+export FI_CXI_DEFAULT_CQ_SIZE=131072
+export FI_CXI_DEFAULT_TX_SIZE=256
+
 export BATCH_SIZE=$BATCH_SIZE
 export DEEPSPEED_STAGE=$DEEPSPEED_STAGE
 export MODEL_SIZE=$MODEL_SIZE
@@ -158,7 +164,8 @@ echo Python Path: $(which python)
 echo Batch Size: $BATCH_SIZE
 echo Deepspeed Stage: $DEEPSPEED_STAGE
 echo Model Size: $MODEL_SIZE
-echo Train with LoRA: $WO_LORA
+echo Train without LoRA: $WO_LORA
+echo Log Directory: $LOG_DIR
 echo -------------------------
 echo NTHREADS: $NTHREADS
 echo PTHREADS: $PTHREADS

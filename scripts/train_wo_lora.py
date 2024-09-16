@@ -101,21 +101,12 @@ def train():
     # Explicitly pass all training arguments
     config = SFTConfig(**filtered_args)
 
-    # peft_config = LoraConfig(
-    #     lora_alpha=64,
-    #     lora_dropout=0.05,
-    #     r=128,
-    #     bias="none",
-    #     task_type="CAUSAL_LM",
-    # )
-
     trainer = SFTTrainer(
         model=model,
         tokenizer=tokenizer,
         args=config,
         **data_module,
         callbacks=[EpochTimingCallback()],
-        # peft_config=peft_config,
         packing=False,
     )
 
@@ -124,7 +115,6 @@ def train():
         "data": data_args.__dict__,
         "training": training_args.__dict__,
         "logging": logging_args.__dict__,
-        # "quantization_config": quantization_config.__dict__,
         "model_config": model.config.__dict__,
         "tokenizer_config": tokenizer.__dict__,
         "trainer_config": trainer.args.__dict__,
@@ -132,7 +122,8 @@ def train():
 
     logger = JSONLogger(log_dir=logging_args.log_dir)
 
-    logger.log(all_dict, filename="arguments")
+    if logging_args.node_number == 0:
+        logger.log(all_dict, filename="arguments")
 
     collector.change_tag("train")
 
@@ -147,7 +138,8 @@ def train():
 
     collector.stop()
 
-    logger.log(trainer.state.log_history, filename="state")
+    if logging_args.node_number == 0:
+        logger.log(trainer.state.log_history, filename="state")
 
     plotter = PerformancePlotter(base_dir=logging_args.log_dir, log_node=logging_args.node_number)
 
