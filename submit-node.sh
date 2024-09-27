@@ -6,6 +6,8 @@ echo hostname: $(hostname)
 echo "------------------"
 echo ""
 
+source /project/lt999001-intern/shared/mymonitor -f $LOG_DIR/node_log/node-$SLURM_PROCID.out -c "CUDA out of memory" -c "Watchdog caught collective operation timeout" -c "Traceback (most recent call last):" -n 120
+
 echo "----LAUNCHING TRAINING----"
 
 accelerate launch \
@@ -23,7 +25,7 @@ accelerate launch \
         --validation_file $SHARED_PATH/datasets/alpaca_json/alpaca_validation.json \
         --seed 42 \
         --max_seq_length 1300 \
-        --output_dir $PROJ_PATH/checkpoint \
+        --output_dir $PROJ_PATH/checkpoint/$SLURM_JOB_ID \
         --num_train_epochs 1 \
         --per_device_train_batch_size $BATCH_SIZE \
         --per_device_eval_batch_size $BATCH_SIZE \
@@ -36,7 +38,7 @@ accelerate launch \
         --gradient_accumulation_steps 1 \
         --deepspeed "$PROJ_PATH/deepspeed_config/deepspeed_$DEEPSPEED_STAGE.json" \
         --gradient_checkpointing True \
-        --tf32 True \
+        --tf32 False \
         --bf16 True \
         --max_grad_norm 1.0 \
         --logging_steps 10 \

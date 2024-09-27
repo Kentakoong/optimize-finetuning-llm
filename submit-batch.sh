@@ -4,7 +4,7 @@
 #SBATCH --ntasks-per-node=1		         # Specify number of tasks per node
 #SBATCH --gpus-per-node=4		         # Specify total number of GPUs
 #SBATCH -t 1:00:00                       # Specify maximum time limit (hour: minute: second)
-#SBATCH -A ltxxxxxx                      # Specify project name
+#SBATCH -A lt999001                      # Specify project name
 #SBATCH -J scaling                       # Specify job name
 #SBATCH -o ./logs/finetune-%j.out        # Specify output file
 
@@ -133,7 +133,8 @@ mkdir -p $LOG_DIR/node_log
 export LOG_DIR=$LOG_DIR
 
 export NCCL_TIMEOUT=3600000
-export NCCL_DEBUG=DEBUG
+export NCCL_DEBUG=INFO
+export NCCL_IB_GID_INDEX=3
 export NCCL_SOCKET_IFNAME=hsn
 export NCCL_SOCKET_NTHREADS=$NTHREADS
 export NCCL_NSOCKS_PERTHREAD=$PTHREADS
@@ -142,6 +143,12 @@ export NCCL_TOPO_DUMP_FILE=${LOG_DIR}/nccl-topo-${SLURM_JOB_ID}.log
 export BATCH_SIZE=$BATCH_SIZE
 export DEEPSPEED_STAGE=$DEEPSPEED_STAGE
 export MODEL_SIZE=$MODEL_SIZE
+
+# export FI_MR_CACHE_MONITOR=userfaultd
+# export FI_CXI_DISABLE_HOST_REGISTER=1
+# export FI_CXI_DEFAULT_CQ_SIZE=131072
+# export FI_CXI_DEFAULT_TX_SIZE=256
+
 
 export TORCH_NCCL_BLOCKING_WAIT=0
 export TORCH_EXTENSIONS_DIR=$CACHE_PATH
@@ -158,7 +165,7 @@ echo Python Path: $(which python)
 echo Batch Size: $BATCH_SIZE
 echo Deepspeed Stage: $DEEPSPEED_STAGE
 echo Model Size: $MODEL_SIZE
-echo Train with LoRA: $WO_LORA
+echo Train without LoRA: $WO_LORA
 echo -------------------------
 echo NTHREADS: $NTHREADS
 echo PTHREADS: $PTHREADS
@@ -169,3 +176,4 @@ echo MASTER_PORT: $MASTER_PORT
 echo -------------------------
 
 srun --output=${LOG_DIR}/node_log/node-%t.out sh submit-node.sh
+

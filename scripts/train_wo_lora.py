@@ -2,6 +2,7 @@
 
 import inspect
 import logging
+import torch
 
 from llm_finetune.arguments import (DataArguments, LoggingArguments,
                                     ModelArguments, TrainingArguments)
@@ -71,6 +72,8 @@ def train():
 
     model.config.attn_implementation = "flash_attention_2"
 
+    # model = torch.compile(model)
+
     collector.change_tag("load_token")
 
     tokenizer = AutoTokenizer.from_pretrained(
@@ -99,7 +102,8 @@ def train():
     filtered_args = {k: v for k, v in vars(training_args).items() if k in sft_config_params}
 
     # Explicitly pass all training arguments
-    config = SFTConfig(**filtered_args)
+    config = SFTConfig(**filtered_args,
+                       dataset_text_field='text')
 
     # peft_config = LoraConfig(
     #     lora_alpha=64,
@@ -116,7 +120,7 @@ def train():
         **data_module,
         callbacks=[EpochTimingCallback()],
         # peft_config=peft_config,
-        packing=False,
+        packing=False
     )
 
     all_dict = combine_keys_to_one_layer_dict(extract_dict({
@@ -144,6 +148,8 @@ def train():
         # Take care of distributed/parallel training
         trainer.model, 'module') else trainer.model
     model_to_save.save_pretrained(training_args.output_dir)
+    
+    # trainer.model.save_pretrained(training_args.output_dir)
 
     collector.stop()
 
