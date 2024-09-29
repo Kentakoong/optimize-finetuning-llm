@@ -141,7 +141,7 @@ def train():
     if logging_args.node_number == 0:
         logger.log(trainer.state.log_history, filename="state")
 
-    plotter = PerformancePlotter(base_dir=logging_args.log_dir, log_node=logging_args.node_number)
+    plotter = PerformancePlotter(base_dir=logging_args.log_dir, log_node=logging_args.node_number, total_ram=512)
 
     plotter.plot()
 

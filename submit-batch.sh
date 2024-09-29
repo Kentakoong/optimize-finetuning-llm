@@ -156,7 +156,7 @@ export HF_HOME="$CACHE_PATH/huggingface"
 export HF_DATASETS_CACHE="$CACHE_PATH/huggingface"
 export TORCH_HOME=$CACHE_PATH
 export XDG_CACHE_HOME=$CACHE_PATH
-export HF_DATASETS_OFFLINE=1 
+export HF_DATASETS_OFFLINE=1
 export HF_HUB_OFFLINE=1
 
 echo -------ENVIRONMENT-------
