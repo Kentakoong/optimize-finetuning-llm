@@ -73,5 +73,5 @@ The following options are used for `arguments` and `pre-submit file` for when us
 - `default`: To name the log folder as default
   - `COUNT_NODE`n-`BATCH_SIZE`b-`SLURM_JOB_ID`
 
-#### Credits:
+## Credits:
 This repository is created and hard-forked based on [SuperAI_LLM_FineTune](https://github.com/boat1603/SuperAI_LLM_FineTune)
